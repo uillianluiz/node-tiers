@@ -45,7 +45,7 @@ if (cluster.isMaster) {
 
         res.setHeader('Content-Type', 'application/json');
         if (nextTier != null) {
-            fetch(nextTier, {method: 'POST', body: JSON.stringify(jsonToNextTier)})
+            fetch(nextTier, {method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(jsonToNextTier)})
                 .then(function (response) {
                     return response.json();
                 }).then(function (json) {
@@ -62,6 +62,11 @@ if (cluster.isMaster) {
     //Last route for handling nothing found
     app.get('*', function (req, res) {
         res.status(404).send('Nothing Found');
+    });
+
+    app.post('*', function (req, res) {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(404).send(JSON.stringify({err: 404}));
     });
 
     app.listen(PORT, function () {
