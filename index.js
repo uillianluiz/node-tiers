@@ -18,11 +18,8 @@ const NEXT_TIER = process.env.NEXT_TIER != "" && process.env.NEXT_TIER != undefi
 const BANDWIDTH = process.env.BANDWIDTH ? process.env.BANDWIDTH : 400;
 const NAME = process.argv[3] ? process.argv[3] : process.env.NAME ? process.env.NAME : "undefined";
 
-//Generate BANDWIDTH object
-var bandwidthElement = [];
-for (var i = 0; i < BANDWIDTH; i++) {
-    bandwidthElement.push({i: functions.randomString(i)});
-}
+//Generate BANDWIDTH dummy object
+var bandwidthElement = {"text": functions.randomString(BANDWIDTH*500)};
 
 if (cluster.isMaster) {
     console.log("BANDWIDTH parameter: " + BANDWIDTH);
@@ -36,6 +33,7 @@ if (cluster.isMaster) {
     }
 } else {
     var app = express();
+    app.use(bodyParser.json({limit: '10mb'}));
 
     //cpu intensive route
     app.post('/cpu/', jsonParser, function (req, res) {
