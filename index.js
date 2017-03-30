@@ -19,7 +19,7 @@ const BANDWIDTH = process.env.BANDWIDTH ? process.env.BANDWIDTH : 400;
 const NAME = process.argv[3] ? process.argv[3] : process.env.NAME ? process.env.NAME : "undefined";
 
 //Generate BANDWIDTH dummy object
-var bandwidthElement = {"text": functions.randomString(BANDWIDTH*500)};
+var bandwidthElement = {"text": functions.randomString(BANDWIDTH * 500)};
 
 if (cluster.isMaster) {
     console.log("BANDWIDTH parameter: " + BANDWIDTH);
@@ -43,7 +43,11 @@ if (cluster.isMaster) {
 
         res.setHeader('Content-Type', 'application/json');
         if (nextTier != null) {
-            fetch(nextTier, {method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(jsonToNextTier)})
+            fetch(nextTier, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(jsonToNextTier)
+            })
                 .then(function (response) {
                     return response.json();
                 }).then(function (json) {
@@ -54,6 +58,32 @@ if (cluster.isMaster) {
             });
         } else {
             res.send(JSON.stringify({name: NAME, pi: functions.getPI()}));
+        }
+    });
+
+    //non-intensive (light) route
+    app.post('/light/', jsonParser, function (req, res) {
+        var jsonParsed = functions.parseJson(req.body, req.query, bandwidthElement, NEXT_TIER);
+        var nextTier = jsonParsed[0];
+        var jsonToNextTier = jsonParsed[1];
+
+        res.setHeader('Content-Type', 'application/json');
+        if (nextTier != null) {
+            fetch(nextTier, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(jsonToNextTier)
+            })
+                .then(function (response) {
+                    return response.json();
+                }).then(function (json) {
+                res.send(JSON.stringify({name: NAME, msg: "Non-Intensive", NEXT_TIER: json}));
+            }).catch(function (err) {
+                console.log(err)
+                res.status(500).send(JSON.stringify({err: true, name: NAME, msg: "Non-Intensive"}));
+            });
+        } else {
+            res.send(JSON.stringify({name: NAME, msg: "Non-Intensive"}));
         }
     });
 

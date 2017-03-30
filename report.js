@@ -11,6 +11,6 @@ fs.readFile(file, 'utf8', function (err, data) {
     var jsonReport = JSON.parse(data);
 
     for(var i=0; i< jsonReport.intermediate.length; i++){
-        console.log(jsonReport.intermediate[i].rps.mean + ";"+ jsonReport.intermediate[i].latency.median)
+        console.log(jsonReport.intermediate[i].scenariosCreated + ";"+ jsonReport.intermediate[i].latency.median)
     }
 });
