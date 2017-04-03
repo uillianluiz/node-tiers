@@ -11,7 +11,6 @@ require('dotenv').config();
 var functions = require('./functions');
 var mysql = require('mysql');
 
-
 var jsonParser = bodyParser.json();
 
 //Define environment variables
@@ -151,8 +150,50 @@ if (cluster.isMaster) {
                 }
             });
         }
+    });
 
+    //disk read route
+    app.post('/read/', jsonParser, function (req, res) {
+        var jsonParsed = functions.parseJson(req.body, req.query, bandwidthElement, NEXT_TIER);
+        var nextTier = jsonParsed[0];
+        var jsonToNextTier = jsonParsed[1];
+        res.setHeader('Content-Type', 'application/json');
 
+        if (nextTier != null) {
+            fetch(nextTier, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(jsonToNextTier)
+            })
+                .then(function (response) {
+                    return response.json();
+                }).then(function (json) {
+                var query = connection.query('SELECT SQL_NO_CACHE sum(char_length(value)) as value FROM dummy_read;', function (err, result) {
+                    if (err) {
+                        res.send(JSON.stringify({name: NAME, msg: "err-reading", NEXT_TIER: json}));
+                    } else {
+                        res.send(JSON.stringify({name: NAME, msg: result[0].value, NEXT_TIER: json}));
+                    }
+                });
+            }).catch(function (err) {
+                console.log(err);
+                var query = connection.query('SELECT SQL_NO_CACHE sum(char_length(value)) as value FROM dummy_read;', function (err, result) {
+                    if (err) {
+                        res.status(500).send(JSON.stringify({err: true, name: NAME, msg: "err-reading"}));
+                    } else {
+                        res.status(500).send(JSON.stringify({err: true, name: NAME, msg: result[0].value}));
+                    }
+                });
+            });
+        } else {
+            var query = connection.query('SELECT SQL_NO_CACHE sum(char_length(value)) as value FROM dummy_read;', function (err, result) {
+                if (err) {
+                    res.send(JSON.stringify({name: NAME, msg: "err-reading"}));
+                } else {
+                    res.send(JSON.stringify({name: NAME, msg: result[0].value}));
+                }
+            });
+        }
     });
 
     //Last route for handling nothing found
