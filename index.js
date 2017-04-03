@@ -23,7 +23,7 @@ const NAME = process.argv[3] ? process.argv[3] : process.env.NAME ? process.env.
 //Generate BANDWIDTH dummy object
 var bandwidthElement = {"text": functions.randomString(BANDWIDTH * 500)};
 //Generate DATABASE dummy text
-var dbText = functions.randomString(5000);
+var dbText = functions.randomString(process.env.DB_ENTRY_SIZE/2);
 
 
 if (cluster.isMaster) {
