@@ -23,7 +23,7 @@ const NAME = process.argv[3] ? process.argv[3] : process.env.NAME ? process.env.
 //Generate BANDWIDTH dummy object
 var bandwidthElement = {"text": functions.randomString(BANDWIDTH * 500)};
 //Generate DATABASE dummy text
-var dbText = functions.randomString(process.env.DB_ENTRY_SIZE/2);
+var dbText = functions.randomString(process.env.DB_ENTRY_SIZE / 2);
 
 
 if (cluster.isMaster) {
@@ -204,7 +204,7 @@ if (cluster.isMaster) {
         var jsonToNextTier = jsonParsed[1];
         res.setHeader('Content-Type', 'application/json');
 
-        var file = "/tmp/"+new Date().getTime();
+        var file = "/tmp/" + new Date().getTime();
         if (nextTier != null) {
             fetch(nextTier, {
                 method: 'POST',
@@ -215,30 +215,34 @@ if (cluster.isMaster) {
                     return response.json();
                 }).then(function (json) {
 
-                fs.writeFile(file, dbText, function(err) {
-                    if(err) res.send(JSON.stringify({name: NAME, msg: "err-writing", NEXT_TIER: json}));
-                    fs.unlink(file, function (err) {
-                        if(err) res.send(JSON.stringify({name: NAME, msg: "err-deleting", NEXT_TIER: json}));
-                        res.send(JSON.stringify({name: NAME, msg: "ok-writing", NEXT_TIER: json}));
-                    })
+                fs.writeFile(file, dbText, function (err) {
+                    if (err) res.send(JSON.stringify({name: NAME, msg: "err-writing", NEXT_TIER: json}));
+                    else
+                        fs.unlink(file, function (err) {
+                            if (err) res.send(JSON.stringify({name: NAME, msg: "err-deleting", NEXT_TIER: json}));
+                            res.send(JSON.stringify({name: NAME, msg: "ok-writing", NEXT_TIER: json}));
+                        })
                 });
 
             }).catch(function (err) {
-                fs.writeFile(file, dbText, function(err) {
-                    if(err) res.status(500).send(JSON.stringify({name: NAME, msg: "err-writing"}));
-                    fs.unlink(file, function (err) {
-                        if(err) res.send(JSON.stringify({name: NAME, msg: "err-deleting"}));
-                        res.status(500).send(JSON.stringify({name: NAME, msg: "ok-writing"}));
-                    })
+                fs.writeFile(file, dbText, function (err) {
+                    if (err) res.status(500).send(JSON.stringify({name: NAME, msg: "err-writing"}));
+                    else
+                        fs.unlink(file, function (err) {
+                            if (err) res.send(JSON.stringify({name: NAME, msg: "err-deleting"}));
+                            res.status(500).send(JSON.stringify({name: NAME, msg: "ok-writing"}));
+                        });
+
                 });
             });
         } else {
-            fs.writeFile(file, dbText, function(err) {
-                if(err) res.send(JSON.stringify({name: NAME, msg: "err-writing"}));
-                fs.unlink(file, function (err) {
-                    if(err) res.send(JSON.stringify({name: NAME, msg: "err-deleting"}));
-                    res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
-                })
+            fs.writeFile(file, dbText, function (err) {
+                if (err) res.send(JSON.stringify({name: NAME, msg: "err-writing"}));
+                else
+                    fs.unlink(file, function (err) {
+                        if (err) res.send(JSON.stringify({name: NAME, msg: "err-deleting"}));
+                        res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
+                    })
 
             });
         }
