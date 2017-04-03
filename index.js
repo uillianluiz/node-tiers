@@ -42,8 +42,8 @@ if (cluster.isMaster) {
     app.use(bodyParser.json({limit: '10mb'}));
     var connection = mysql.createConnection({
         host: 'localhost',
-        user: process.env.BD_USER,
-        password: process.env.BD_PASSWD,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWD,
         database: 'node_tiers'
     });
     connection.connect(function (err) {
