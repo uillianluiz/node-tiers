@@ -10,6 +10,7 @@ var sizeof = require('object-sizeof');
 require('dotenv').config();
 var functions = require('./functions');
 var mysql = require('mysql');
+var fs = require('fs');
 
 var jsonParser = bodyParser.json();
 
@@ -105,8 +106,8 @@ if (cluster.isMaster) {
         }
     });
 
-    //disk write route
-    app.post('/write/', jsonParser, function (req, res) {
+    //disk write database route
+    app.post('/writeDB/', jsonParser, function (req, res) {
         var jsonParsed = functions.parseJson(req.body, req.query, bandwidthElement, NEXT_TIER);
         var nextTier = jsonParsed[0];
         var jsonToNextTier = jsonParsed[1];
@@ -195,6 +196,54 @@ if (cluster.isMaster) {
             });
         }
     });
+
+    //disk write database route
+    app.post('/write/', jsonParser, function (req, res) {
+        var jsonParsed = functions.parseJson(req.body, req.query, bandwidthElement, NEXT_TIER);
+        var nextTier = jsonParsed[0];
+        var jsonToNextTier = jsonParsed[1];
+        res.setHeader('Content-Type', 'application/json');
+
+        var file = "/tmp/"+new Date().getTime();
+        if (nextTier != null) {
+            fetch(nextTier, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(jsonToNextTier)
+            })
+                .then(function (response) {
+                    return response.json();
+                }).then(function (json) {
+
+                fs.writeFile(file, dbText, function(err) {
+                    if(err) res.send(JSON.stringify({name: NAME, msg: "err-writing", NEXT_TIER: json}));
+                    fs.unlink(file, function (err) {
+                        if(err) res.send(JSON.stringify({name: NAME, msg: "err-deleting", NEXT_TIER: json}));
+                        res.send(JSON.stringify({name: NAME, msg: "ok-writing", NEXT_TIER: json}));
+                    })
+                });
+
+            }).catch(function (err) {
+                fs.writeFile(file, dbText, function(err) {
+                    if(err) res.status(500).send(JSON.stringify({name: NAME, msg: "err-writing"}));
+                    fs.unlink(file, function (err) {
+                        if(err) res.send(JSON.stringify({name: NAME, msg: "err-deleting"}));
+                        res.status(500).send(JSON.stringify({name: NAME, msg: "ok-writing"}));
+                    })
+                });
+            });
+        } else {
+            fs.writeFile(file, dbText, function(err) {
+                if(err) res.send(JSON.stringify({name: NAME, msg: "err-writing"}));
+                fs.unlink(file, function (err) {
+                    if(err) res.send(JSON.stringify({name: NAME, msg: "err-deleting"}));
+                    res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
+                })
+
+            });
+        }
+    });
+
 
     //Last route for handling nothing found
     app.get('*', function (req, res) {
