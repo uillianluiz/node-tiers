@@ -9,6 +9,8 @@ var fetch = require('node-fetch');
 var sizeof = require('object-sizeof');
 require('dotenv').config();
 var functions = require('./functions');
+var mysql = require('mysql');
+
 
 var jsonParser = bodyParser.json();
 
@@ -20,10 +22,14 @@ const NAME = process.argv[3] ? process.argv[3] : process.env.NAME ? process.env.
 
 //Generate BANDWIDTH dummy object
 var bandwidthElement = {"text": functions.randomString(BANDWIDTH * 500)};
+//Generate DATABASE dummy text
+var dbText = functions.randomString(5000);
+
 
 if (cluster.isMaster) {
     console.log("BANDWIDTH parameter: " + BANDWIDTH);
     console.log("bandwidthElement has size: " + sizeof(bandwidthElement) + " bytes");
+    console.log("dbText has size: " + sizeof(dbText) + " bytes");
     console.log("The default next tier is: " + NEXT_TIER);
 
     //create #cpuCount workers that will process requests in a round robin way
@@ -34,6 +40,19 @@ if (cluster.isMaster) {
 } else {
     var app = express();
     app.use(bodyParser.json({limit: '10mb'}));
+    var connection = mysql.createConnection({
+        host: 'localhost',
+        user: process.env.BD_USER,
+        password: process.env.BD_PASSWD,
+        database: 'node_tiers'
+    });
+    connection.connect(function (err) {
+        if (err) {
+            console.error("Database not connected. Exiting...");
+            process.exit(1);
+        }
+    });
+
 
     //cpu intensive route
     app.post('/cpu/', jsonParser, function (req, res) {
@@ -85,6 +104,55 @@ if (cluster.isMaster) {
         } else {
             res.send(JSON.stringify({name: NAME, msg: "Non-Intensive"}));
         }
+    });
+
+    //disk write route
+    app.post('/write/', jsonParser, function (req, res) {
+        var jsonParsed = functions.parseJson(req.body, req.query, bandwidthElement, NEXT_TIER);
+        var nextTier = jsonParsed[0];
+        var jsonToNextTier = jsonParsed[1];
+        res.setHeader('Content-Type', 'application/json');
+
+
+        var post = {"value": dbText};
+        if (nextTier != null) {
+            fetch(nextTier, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(jsonToNextTier)
+            })
+                .then(function (response) {
+                    return response.json();
+                }).then(function (json) {
+                var query = connection.query('INSERT INTO `dummy_write` SET ?', post, function (err, result) {
+                    if (err) {
+                        res.send(JSON.stringify({name: NAME, msg: "err-writing", NEXT_TIER: json}));
+                    } else {
+                        res.send(JSON.stringify({name: NAME, msg: "ok-writing", NEXT_TIER: json}));
+                    }
+                });
+
+            }).catch(function (err) {
+                console.log(err);
+                var query = connection.query('INSERT INTO `dummy_write` SET ?', post, function (err, result) {
+                    if (err) {
+                        res.status(500).send(JSON.stringify({err: true, name: NAME, msg: "err-writing"}));
+                    } else {
+                        res.status(500).send(JSON.stringify({err: true, name: NAME, msg: "ok-writing"}));
+                    }
+                });
+            });
+        } else {
+            var query = connection.query('INSERT INTO `dummy_write` SET ?', post, function (err, result) {
+                if (err) {
+                    res.send(JSON.stringify({name: NAME, msg: "err-writing"}));
+                } else {
+                    res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
+                }
+            });
+        }
+
+
     });
 
     //Last route for handling nothing found

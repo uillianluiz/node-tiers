@@ -10,7 +10,15 @@ fs.readFile(file, 'utf8', function (err, data) {
     if (err) throw err;
     var jsonReport = JSON.parse(data);
 
+    var requests = [];
+    var latency = [];
+
     for(var i=0; i< jsonReport.intermediate.length; i++){
+        requests.push(jsonReport.intermediate[i].scenariosCreated);
+        latency.push(jsonReport.intermediate[i].latency.median)
         console.log(jsonReport.intermediate[i].scenariosCreated + ";"+ jsonReport.intermediate[i].latency.median)
     }
+
 });
+
+
