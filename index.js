@@ -220,7 +220,7 @@ if (cluster.isMaster) {
                     else
                         fs.unlink(file, function (err) {
                             if (err) res.send(JSON.stringify({name: NAME, msg: "err-deleting", NEXT_TIER: json}));
-                            res.send(JSON.stringify({name: NAME, msg: "ok-writing", NEXT_TIER: json}));
+                            else res.send(JSON.stringify({name: NAME, msg: "ok-writing", NEXT_TIER: json}));
                         })
                 });
 
@@ -230,7 +230,7 @@ if (cluster.isMaster) {
                     else
                         fs.unlink(file, function (err) {
                             if (err) res.send(JSON.stringify({name: NAME, msg: "err-deleting"}));
-                            res.status(500).send(JSON.stringify({name: NAME, msg: "ok-writing"}));
+                            else res.status(500).send(JSON.stringify({name: NAME, msg: "ok-writing"}));
                         });
 
                 });
@@ -241,7 +241,7 @@ if (cluster.isMaster) {
                 else
                     fs.unlink(file, function (err) {
                         if (err) res.send(JSON.stringify({name: NAME, msg: "err-deleting"}));
-                        res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
+                        else res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
                     })
 
             });
