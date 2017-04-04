@@ -221,7 +221,7 @@ if (cluster.isMaster) {
                     else {
                         setTimeout(function () {
                             fs.unlink(file, function (err) {
-                                if (err) console.err(err);
+                                if (err) console.error(err);
                             })
                         }, 20000);
                         res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
@@ -234,7 +234,7 @@ if (cluster.isMaster) {
                     else {
                         setTimeout(function () {
                             fs.unlink(file, function (err) {
-                                if (err) console.err(err);
+                                if (err) console.error(err);
                             })
                         }, 20000);
                         res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
@@ -247,7 +247,7 @@ if (cluster.isMaster) {
                 else {
                     setTimeout(function () {
                         fs.unlink(file, function (err) {
-                            if (err) console.err(err);
+                            if (err) console.error(err);
                         })
                     }, 20000);
                     res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
