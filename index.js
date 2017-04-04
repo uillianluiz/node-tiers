@@ -216,7 +216,7 @@ if (cluster.isMaster) {
                     return response.json();
                 }).then(function (json) {
 
-                fs.writeFile(file, dbText, function (err) {
+                fs.writeFile(file, dumbFile, function (err) {
                     if (err) res.send(JSON.stringify({name: NAME, msg: "err-writing", NEXT_TIER: json}));
                     else {
                         setTimeout(function () {
@@ -229,7 +229,7 @@ if (cluster.isMaster) {
                 });
 
             }).catch(function (err) {
-                fs.writeFile(file, functions.randomString(process.env.DB_ENTRY_SIZE), function (err) {
+                fs.writeFile(file, dumbFile, function (err) {
                     if (err) res.status(500).send(JSON.stringify({name: NAME, msg: "err-writing"}));
                     else {
                         setTimeout(function () {
