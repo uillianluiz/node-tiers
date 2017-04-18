@@ -5,33 +5,22 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var cluster = require('cluster');
-var fetch = require('node-fetch');
 var sizeof = require('object-sizeof');
 require('dotenv').config();
 var functions = require('./functions');
-var mysql = require('mysql');
-var fs = require('fs');
-
+var os = require("os");
 var jsonParser = bodyParser.json();
 
-//Define environment variables
-const PORT = process.argv[2] ? process.argv[2] : process.env.PORT ? process.env.PORT : 3000;
-const NEXT_TIER = process.env.NEXT_TIER != "" && process.env.NEXT_TIER != undefined ? process.env.NEXT_TIER : null;
-const BANDWIDTH = process.env.BANDWIDTH ? process.env.BANDWIDTH : 400;
-const NAME = process.argv[3] ? process.argv[3] : process.env.NAME ? process.env.NAME : "undefined";
-
+//Set port number
+const PORT = process.argv[2] || process.env.PORT || 3000;
 //Generate BANDWIDTH dummy object
-var bandwidthElement = {"text": functions.randomString(BANDWIDTH * 500)};
-//Generate DATABASE dummy text
-var dbText = functions.randomString(process.env.DB_ENTRY_SIZE / 2);
-var dumbFile = functions.randomString(process.env.FILE_SIZE * 1000);
-
+var dummyNetwork = {"text": functions.randomString((process.env.BANDWIDTH || 256) * 1000)};
+//Generate FILE dummy text
+var dummyFile = functions.randomString((process.env.FILE_SIZE || 128) * 1000);
 
 if (cluster.isMaster) {
-    console.log("BANDWIDTH parameter: " + BANDWIDTH);
-    console.log("bandwidthElement has size: " + sizeof(bandwidthElement) + " bytes");
-    console.log("dbText has size: " + sizeof(dbText) + " bytes");
-    console.log("The default next tier is: " + NEXT_TIER);
+    console.log("Dummy network set to " + sizeof(dummyNetwork) / 2 + " bytes");
+    console.log("Dummy file size set to " + sizeof(dummyFile) / 2 + " bytes");
 
     //create #cpuCount workers that will process requests in a round robin way
     var cpuCount = require('os').cpus().length;
@@ -40,235 +29,58 @@ if (cluster.isMaster) {
     }
 } else {
     var app = express();
-    app.use(bodyParser.json({limit: '10mb'}));
-    var connection = mysql.createConnection({
-        host: 'localhost',
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWD,
-        database: 'node_tiers'
-    });
-    connection.connect(function (err) {
-        if (err) {
-            console.error("Database not connected. Exiting...");
-            process.exit(1);
-        }
+    app.use(bodyParser.json({limit: '16mb'}));
+
+    //send global data to routes
+    app.use(function (req, res, next) {
+        req.dummyNetwork = dummyNetwork;
+        req.dummyFile = dummyFile;
+        req.NAME = os.hostname();
+        next();
     });
 
+    var cpu = require('./routes/cpu');
+    var light = require('./routes/light');
+    var write = require('./routes/write');
+    app.use('/cpu/', cpu);
+    app.use('/light/', light);
+    app.use('/write/', write);
 
-    //cpu intensive route
-    app.post('/cpu/', jsonParser, function (req, res) {
-        var jsonParsed = functions.parseJson(req.body, req.query, bandwidthElement, NEXT_TIER);
-        var nextTier = jsonParsed[0];
-        var jsonToNextTier = jsonParsed[1];
+    //change the bandwidth of each transaction
+    app.post('/bandwidth/:size', function (req, res) {
+        var newSize = req.params.size;
+        dummyNetwork = {"text": functions.randomString(newSize * 1000)};
+        console.log("Dummy network set to " + sizeof(dummyNetwork) / 2 + " bytes");
+        res.send("Dummy network set to " + newSize + "kb (" + sizeof(dummyNetwork) / 2 + " bytes)");
+    });
 
+    //change the dummy file size of each write transaction
+    app.post('/filesize/:size', function (req, res) {
+        var newSize = req.params.size;
+        dummyFile = functions.randomString(newSize * 1000);
+        console.log("Dummy file size set to " + sizeof(dummyFile) / 2 + " bytes");
+        res.send("Dummy file size set to " + newSize + "kb (" + sizeof(dummyFile) / 2 + " bytes)");
+    });
+
+    //get status of the bandwidth and the dummy file size
+    app.get('/status/', function (req, res) {
         res.setHeader('Content-Type', 'application/json');
-        if (nextTier != null) {
-            fetch(nextTier, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(jsonToNextTier)
-            })
-                .then(function (response) {
-                    return response.json();
-                }).then(function (json) {
-                res.send(JSON.stringify({name: NAME, pi: functions.getPI(), NEXT_TIER: json}));
-            }).catch(function (err) {
-                console.log(err)
-                res.status(500).send(JSON.stringify({err: true, name: NAME, pi: functions.getPI()}));
-            });
-        } else {
-            res.send(JSON.stringify({name: NAME, pi: functions.getPI()}));
-        }
+        res.send(JSON.stringify({
+            "dummyNetwork": parseInt(sizeof(dummyNetwork) / 1000),
+            "dummyFile": parseInt(sizeof(dummyFile) / 1000) / 2
+        }));
     });
 
-    //non-intensive (light) route
-    app.post('/light/', jsonParser, function (req, res) {
-        var jsonParsed = functions.parseJson(req.body, req.query, bandwidthElement, NEXT_TIER);
-        var nextTier = jsonParsed[0];
-        var jsonToNextTier = jsonParsed[1];
-
-        res.setHeader('Content-Type', 'application/json');
-        if (nextTier != null) {
-            fetch(nextTier, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(jsonToNextTier)
-            })
-                .then(function (response) {
-                    return response.json();
-                }).then(function (json) {
-                res.send(JSON.stringify({name: NAME, msg: "Non-Intensive", NEXT_TIER: json}));
-            }).catch(function (err) {
-                console.log(err)
-                res.status(500).send(JSON.stringify({err: true, name: NAME, msg: "Non-Intensive"}));
-            });
-        } else {
-            res.send(JSON.stringify({name: NAME, msg: "Non-Intensive"}));
-        }
-    });
-
-    //disk write database route
-    app.post('/writeDB/', jsonParser, function (req, res) {
-        var jsonParsed = functions.parseJson(req.body, req.query, bandwidthElement, NEXT_TIER);
-        var nextTier = jsonParsed[0];
-        var jsonToNextTier = jsonParsed[1];
-        res.setHeader('Content-Type', 'application/json');
-
-
-        var post = {"value": dbText};
-        if (nextTier != null) {
-            fetch(nextTier, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(jsonToNextTier)
-            })
-                .then(function (response) {
-                    return response.json();
-                }).then(function (json) {
-                var query = connection.query('INSERT INTO `dummy_write` SET ?', post, function (err, result) {
-                    if (err) {
-                        res.send(JSON.stringify({name: NAME, msg: "err-writing", NEXT_TIER: json}));
-                    } else {
-                        res.send(JSON.stringify({name: NAME, msg: "ok-writing", NEXT_TIER: json}));
-                    }
-                });
-
-            }).catch(function (err) {
-                console.log(err);
-                var query = connection.query('INSERT INTO `dummy_write` SET ?', post, function (err, result) {
-                    if (err) {
-                        res.status(500).send(JSON.stringify({err: true, name: NAME, msg: "err-writing"}));
-                    } else {
-                        res.status(500).send(JSON.stringify({err: true, name: NAME, msg: "ok-writing"}));
-                    }
-                });
-            });
-        } else {
-            var query = connection.query('INSERT INTO `dummy_write` SET ?', post, function (err, result) {
-                if (err) {
-                    res.send(JSON.stringify({name: NAME, msg: "err-writing"}));
-                } else {
-                    res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
-                }
-            });
-        }
-    });
-
-    //disk read route
-    app.post('/read/', jsonParser, function (req, res) {
-        var jsonParsed = functions.parseJson(req.body, req.query, bandwidthElement, NEXT_TIER);
-        var nextTier = jsonParsed[0];
-        var jsonToNextTier = jsonParsed[1];
-        res.setHeader('Content-Type', 'application/json');
-
-        if (nextTier != null) {
-            fetch(nextTier, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(jsonToNextTier)
-            })
-                .then(function (response) {
-                    return response.json();
-                }).then(function (json) {
-                var query = connection.query('SELECT SQL_NO_CACHE sum(char_length(value)) as value FROM dummy_read;', function (err, result) {
-                    if (err) {
-                        res.send(JSON.stringify({name: NAME, msg: "err-reading", NEXT_TIER: json}));
-                    } else {
-                        res.send(JSON.stringify({name: NAME, msg: result[0].value, NEXT_TIER: json}));
-                    }
-                });
-            }).catch(function (err) {
-                console.log(err);
-                var query = connection.query('SELECT SQL_NO_CACHE sum(char_length(value)) as value FROM dummy_read;', function (err, result) {
-                    if (err) {
-                        res.status(500).send(JSON.stringify({err: true, name: NAME, msg: "err-reading"}));
-                    } else {
-                        res.status(500).send(JSON.stringify({err: true, name: NAME, msg: result[0].value}));
-                    }
-                });
-            });
-        } else {
-            var query = connection.query('SELECT SQL_NO_CACHE sum(char_length(value)) as value FROM dummy_read;', function (err, result) {
-                if (err) {
-                    res.send(JSON.stringify({name: NAME, msg: "err-reading"}));
-                } else {
-                    res.send(JSON.stringify({name: NAME, msg: result[0].value}));
-                }
-            });
-        }
-    });
-
-    //disk write file route
-    app.post('/write/', jsonParser, function (req, res) {
-        var jsonParsed = functions.parseJson(req.body, req.query, bandwidthElement, NEXT_TIER);
-        var nextTier = jsonParsed[0];
-        var jsonToNextTier = jsonParsed[1];
-        res.setHeader('Content-Type', 'application/json');
-
-        var file = "/tmp/" + new Date().getTime();
-        if (nextTier != null) {
-            fetch(nextTier, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(jsonToNextTier)
-            })
-                .then(function (response) {
-                    return response.json();
-                }).then(function (json) {
-
-                fs.writeFile(file, dumbFile, function (err) {
-                    if (err) res.send(JSON.stringify({name: NAME, msg: "err-writing", NEXT_TIER: json}));
-                    else {
-                        setTimeout(function () {
-                            fs.unlink(file, function (err) {
-                                if (err) console.error(err);
-                            })
-                        }, 20000);
-                        res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
-                    }
-                });
-
-            }).catch(function (err) {
-                fs.writeFile(file, dumbFile, function (err) {
-                    if (err) res.status(500).send(JSON.stringify({name: NAME, msg: "err-writing"}));
-                    else {
-                        setTimeout(function () {
-                            fs.unlink(file, function (err) {
-                                if (err) console.error(err);
-                            })
-                        }, 20000);
-                        res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
-                    }
-                });
-            });
-        } else {
-            fs.writeFile(file, dumbFile, function (err) {
-                if (err) res.send(JSON.stringify({name: NAME, msg: "err-writing"}));
-                else {
-                    setTimeout(function () {
-                        fs.unlink(file, function (err) {
-                            if (err) console.error(err);
-                        })
-                    }, 20000);
-                    res.send(JSON.stringify({name: NAME, msg: "ok-writing"}));
-                }
-
-            });
-        }
-    });
-
-
-    //Last route for handling nothing found
+    //Last routes for handling nothing found
     app.get('*', function (req, res) {
         res.status(404).send('Nothing Found');
     });
-
     app.post('*', function (req, res) {
         res.setHeader('Content-Type', 'application/json');
         res.status(404).send(JSON.stringify({err: 404}));
     });
 
     app.listen(PORT, function () {
-        console.log('Example app listening on PORT ' + PORT + "!")
+        console.log('Process with PID ' + process.pid + ' listening on PORT ' + PORT + "!")
     });
 }

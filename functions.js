@@ -1,7 +1,7 @@
 /**
  * Created by uillian on 28/03/17.
  */
-
+var fs = require('fs');
 
 module.exports = {
     getPI: function () {
@@ -20,18 +20,31 @@ module.exports = {
         }
         return text;
     },
-    parseJson: function (body, query, bandwidthElement, NEXT_TIER) {
+    parseJson: function (body, query, bandwidthElement) {
         if (body.hasOwnProperty("nextTier") && body.nextTier.length > 0) {
             nextTier = body.nextTier[0];
-            body.nextTier.splice(0, 1)
+            body.nextTier.splice(0, 1); //remove the the first next tier from the list
             jsonToNextTier = Object.assign({},
                 {"nextTier": body.nextTier},
                 {"dummy": bandwidthElement}
             );
         } else {
-            nextTier = query.nextTier ? query.nextTier : NEXT_TIER;
+            nextTier = query.nextTier ? query.nextTier : null;
             jsonToNextTier = {"dummy": bandwidthElement};
         }
         return [nextTier, jsonToNextTier];
+    },
+    writeFile: function(filePath, fileContent, fnStatus){
+        fs.writeFile(filePath, fileContent, function (err) {
+            if(err) fnStatus(false);
+            else fnStatus(true);
+        });
+    },
+    removeFile: function(filePath){
+        setTimeout(function () {
+            fs.unlink(filePath, function (err) {
+                if (err) console.error(err);
+            })
+        }, 20000);
     }
 }
