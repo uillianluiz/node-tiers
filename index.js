@@ -23,7 +23,8 @@ if (cluster.isMaster) {
     console.log("Dummy file size set to " + sizeof(dummyFile) / 2 + " bytes");
 
     //create #cpuCount workers that will process requests in a round robin way
-    var cpuCount = require('os').cpus().length;
+    var cpuCount = os.cpus().length;
+    cpuCount = cpuCount > process.env.MAX_CPU ? process.env.MAX_CPU : cpuCount;
     for (var i = 0; i < cpuCount; i += 1) {
         cluster.fork();
     }
