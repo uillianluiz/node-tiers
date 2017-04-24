@@ -26,7 +26,7 @@ router.post('/', function (req, res) {
         }).then(function (json) {
             functions.writeFile(filePath, req.dummyFile, function (status) {
                 if (status) {
-                    //functions.removeFile(filePath);
+                    functions.removeFile(filePath);
                     res.status(requestCode).send(JSON.stringify({name: req.NAME, msg: "ok-writing", NEXT_TIER: json}));
                 } else {
                     res.status(500).send(JSON.stringify({name: req.NAME, msg: "err-writing", NEXT_TIER: json}));
@@ -35,7 +35,7 @@ router.post('/', function (req, res) {
         }).catch(function (err) {
             functions.writeFile(filePath, req.dummyFile, function (status) {
                 if (status) {
-                    //functions.removeFile(filePath);
+                    functions.removeFile(filePath);
                     res.status(501).send(JSON.stringify({name: req.NAME, msg: "ok-writing"}));
                 } else {
                     res.status(500).send(JSON.stringify({name: req.NAME, msg: "err-writing"}));
@@ -45,7 +45,7 @@ router.post('/', function (req, res) {
     } else {
         functions.writeFile(filePath, req.dummyFile, function (status) {
             if (status) {
-                //functions.removeFile(filePath);
+                functions.removeFile(filePath);
                 res.send(JSON.stringify({name: req.NAME, msg: "ok-writing"}));
             } else {
                 res.status(500).send(JSON.stringify({name: req.NAME, msg: "err-writing"}));
