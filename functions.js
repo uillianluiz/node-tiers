@@ -34,17 +34,21 @@ module.exports = {
         }
         return [nextTier, jsonToNextTier];
     },
-    writeFile: function(filePath, fileContent, fnStatus){
+    writeFile: function (filePath, fileContent, fnStatus) {
         fs.writeFile(filePath, fileContent, function (err) {
-            if(err) fnStatus(false);
+            if (err) fnStatus(false);
             else fnStatus(true);
         });
     },
-    removeFile: function(filePath){
+    removeFile: function (filePath) {
         setTimeout(function () {
-            fs.unlink(filePath, function (err) {
-                if (err) console.error(err);
-            })
+            fs.stat(filePath, function (err) {
+                if(!err){
+                    fs.unlink(filePath, function (err) {
+                        if (err) console.error(err);
+                    });
+                }
+            });
         }, 20000);
     }
 }

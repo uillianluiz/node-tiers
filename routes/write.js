@@ -17,24 +17,26 @@ router.post('/', function (req, res) {
 
     var filePath = "/tmp/" + new Date().getTime();
     if (nextTier != null) {
+        var requestCode = 200;
         fetch(nextTier, {
             method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(jsonToNextTier)
         }).then(function (response) {
-            return response.json();
+            requestCode = response.status;
+            return response.json()
         }).then(function (json) {
             functions.writeFile(filePath, req.dummyFile, function (status) {
                 if (status) {
                     functions.removeFile(filePath);
-                    res.send(JSON.stringify({name: req.NAME, msg: "ok-writing"}));
+                    res.status(requestCode).send(JSON.stringify({name: req.NAME, msg: "ok-writing", NEXT_TIER: json}));
                 } else {
-                    res.send(JSON.stringify({name: req.NAME, msg: "err-writing", NEXT_TIER: json}));
+                    res.status(500).send(JSON.stringify({name: req.NAME, msg: "err-writing", NEXT_TIER: json}));
                 }
             });
         }).catch(function (err) {
             functions.writeFile(filePath, req.dummyFile, function (status) {
                 if (status) {
                     functions.removeFile(filePath);
-                    res.send(JSON.stringify({name: req.NAME, msg: "ok-writing"}));
+                    res.status(501).send(JSON.stringify({name: req.NAME, msg: "ok-writing"}));
                 } else {
                     res.status(500).send(JSON.stringify({name: req.NAME, msg: "err-writing"}));
                 }
@@ -46,7 +48,7 @@ router.post('/', function (req, res) {
                 functions.removeFile(filePath);
                 res.send(JSON.stringify({name: req.NAME, msg: "ok-writing"}));
             } else {
-                res.send(JSON.stringify({name: req.NAME, msg: "err-writing"}));
+                res.status(500).send(JSON.stringify({name: req.NAME, msg: "err-writing"}));
             }
         });
     }

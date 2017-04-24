@@ -57,8 +57,7 @@ if (cluster.isMaster) {
 
     //change the dummy file size of each write transaction
     app.post('/filesize/:size', function (req, res) {
-        var newSize = req.params.size;
-        dummyFile = functions.randomString(newSize * 1000);
+        var newSize = req.params.size;dummyFile = functions.randomString(newSize * 1000);
         console.log("Dummy file size set to " + sizeof(dummyFile) / 2 + " bytes");
         res.send("Dummy file size set to " + newSize + "kb (" + sizeof(dummyFile) / 2 + " bytes)");
     });
