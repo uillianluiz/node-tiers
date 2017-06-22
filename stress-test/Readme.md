@@ -18,3 +18,4 @@ Using the tool Artillery:
     * `npm install -g artillery`
 2. Run the [example](example.yml) script:
     * `artillery run example.yml`
+3. Check the artillery documentation [here](https://artillery.io/docs/)

@@ -9,4 +9,4 @@ Current tiers implemented:
 - Disk Write intensive
 - Nothing intensive
 
-Check how to execute it [here](stress-test/Readme.md)
+Check how to execute a stress test [here](stress-test/Readme.md)
