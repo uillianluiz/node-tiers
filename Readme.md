@@ -1,4 +1,4 @@
-# Node-tiers: An multi-tier benchmark
+# Node-tiers: A multi-tier benchmark
 
 Features:
 - Application may be configured with several tiers settings.
