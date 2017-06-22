@@ -8,3 +8,5 @@ Current tiers implemented:
 - CPU intensive
 - Disk Write intensive
 - Nothing intensive
+
+Check how to execute it [here](stress-test/Readme.md)
