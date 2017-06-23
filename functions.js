@@ -48,7 +48,7 @@ module.exports = {
         }
         fnStatus(true);
     },
-    removeFile: function (filePath, tries=0) {
+    removeFile: function (filePath, tries) {
         tries = (typeof tries !== 'undefined') ?  tries : 0;
         setTimeout(function () {
             fs.stat(filePath, function (err, stat) {
