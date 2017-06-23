@@ -43,9 +43,11 @@ if (cluster.isMaster) {
     var cpu = require('./routes/cpu');
     var light = require('./routes/light');
     var write = require('./routes/write');
+    var writeSync = require('./routes/writeSync');
     app.use('/cpu/', cpu);
     app.use('/light/', light);
     app.use('/write/', write);
+    app.use('/writeSync/', writeSync);
 
     //change the bandwidth of each transaction
     app.post('/bandwidth/:size', function (req, res) {

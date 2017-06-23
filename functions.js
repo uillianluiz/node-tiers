@@ -40,6 +40,14 @@ module.exports = {
             else fnStatus(true);
         });
     },
+    writeFileSync: function (filePath, fileContent, fnStatus) {
+        try{
+          fs.writeFileSync(filePath, fileContent);
+        }catch(err){
+          fnStatus(false);
+        }
+        fnStatus(true);
+    },
     removeFile: function (filePath) {
         setTimeout(function () {
             fs.stat(filePath, function (err) {
