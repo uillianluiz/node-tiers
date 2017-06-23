@@ -59,7 +59,7 @@ module.exports = {
                 }else if(tries == 3){
                   console.log("Cannot delete file: " + filePath);
                 }else{
-                  removeFile(filePath, tries+1);
+                  module.exports.removeFile(filePath, tries+1);
                 }
             });
         }, 60000);
