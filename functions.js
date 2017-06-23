@@ -48,13 +48,17 @@ module.exports = {
         }
         fnStatus(true);
     },
-    removeFile: function (filePath) {
+    removeFile: function (filePath, tries=0) {
         setTimeout(function () {
-            fs.stat(filePath, function (err) {
-                if(!err){
+            fs.stat(filePath, function (err, stat) {
+                if(stat.isFile()){
                     fs.unlink(filePath, function (err) {
                         if (err) console.error(err);
                     });
+                }else if(tries == 3){
+                  console.log("Cannot delete file: " + filePath);
+                }else{
+                  removeFile(filePath, tries+1);
                 }
             });
         }, 60000);
