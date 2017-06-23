@@ -52,7 +52,7 @@ module.exports = {
         tries = (typeof tries !== 'undefined') ?  tries : 0;
         setTimeout(function () {
             fs.stat(filePath, function (err, stat) {
-                if(stat.isFile()){
+                if(!err && stat.isFile()){
                     fs.unlink(filePath, function (err) {
                         if (err) console.error(err);
                     });
