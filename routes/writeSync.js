@@ -15,7 +15,7 @@ router.post('/', function (req, res) {
     var jsonToNextTier = jsonParsed[1];
     res.setHeader('Content-Type', 'application/json');
 
-    var filePath = "/tmp/" + new Date().getTime();
+    var filePath = "/tmp/" + new Date().getTime() + functions.randomString(10);
     if (nextTier != null) {
         var requestCode = 200;
         fetch(nextTier, {
