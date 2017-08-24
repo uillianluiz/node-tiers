@@ -10,7 +10,7 @@ export default function setRoutes(app) {
   const index = new Index();
   const writeDatabase = new WriteDatabase();
 
-  router.use((req, res, next) => { req.start = Date.now(); next(); });
+  router.use((req, res, next) => { req.startTime = Date.now(); next(); });
 
   router.route('/').get(index.show);
   router.route('/writeDatabase').post(writeDatabase.process); 

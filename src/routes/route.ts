@@ -23,7 +23,8 @@ export default abstract class Route {
     }
 
     /**
-     * 
+     * Function that makes the execution of the following tiers that are in queue. 
+     * It generates a random data, with the defined request size, which is sent to stress the network
      * @param nextTiers Array of next tiers. 
      */
     public static processNextTier(nextTiers: NextTier[], fn: (json: Status) => void): void{

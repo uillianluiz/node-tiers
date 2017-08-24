@@ -14,12 +14,13 @@ export default class WriteDatabaseRoute {
 		let nextTiers = Route.getNextTiers(req.body);
 		
 		writeDatabase.execute((status: Status): void => {
+			status.time = new Date().getTime() - req.startTime;
+			status.tier = req.protocol + '://' + req.get('host') + req.originalUrl;
 
 			Route.processNextTier(nextTiers, (nextTierStatus: Status) => {
 				if(typeof nextTierStatus === 'object')
 					status.children.push(nextTierStatus);
-
-				status.tier = req.protocol + '://' + req.get('host') + req.originalUrl;;
+				
 				res.json(status);
 			});
 		});

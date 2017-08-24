@@ -11,6 +11,7 @@ class Status {
     message: string;
     code: number;
     tier: string | NextTier;
+    time: number;
     children: Status[];
 
     /**
