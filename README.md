@@ -1,8 +1,9 @@
 # Node-tiers: A multi-tier benchmark
 
-A multi-tier benchmark that allows fine-grained personalization of resource utilization.
+A multi-tier benchmark that allows fine-grained personalization of resource utilization. It is based on the [Stress-ng](http://kernel.ubuntu.com/~cking/stress-ng/) benchmark.
 
-[**Features:**](#features)
+**Features:**
+
  - Several resource intensive tiers implemented, each with different characteristics.
  - Network utilization in the communication with each tier is personalizable.
  - Application can be execute with any tier configuration (1 to N-tiers).
@@ -12,7 +13,7 @@ A multi-tier benchmark that allows fine-grained personalization of resource util
     - [TypeScript](https://www.typescriptlang.org/)
     - [MongoDB](https://www.mongodb.com/)
 
-[**Current tiers implemented:**](#tiers)
+**Current tiers implemented:**
 
 | Application/Method | Class File                                                          | Parameters                                          | Resource Intensive            |
 |--------------------|---------------------------------------------------------------------|-----------------------------------------------------|-------------------------------|
@@ -25,7 +26,7 @@ A multi-tier benchmark that allows fine-grained personalization of resource util
 | Write Database     | [writeDatabase.ts](src/tiers/writeDatabase.ts)                      | `dbElementSize`                                     | Disk Write                    |
 | ZLib               | [zlib.ts](src/tiers/zlib.ts)                                        | `textLength`                                        | CPU, Memory and Cache         |
 
-[**Instalation**](#instalation)
+**Instalation:**
 
 Install the necessary dependencies:
 
@@ -36,7 +37,7 @@ Install all other project dependencies by running:
 - `npm install`
 
 
-[**Running**](#Running)
+**Running:**
 
 Each route expects a POST request, where it accepts an optional parameter `nextTiers`, which will make the connections between tiers.
 This parameter must be in the body of the HTTP request, and should follow the example:
