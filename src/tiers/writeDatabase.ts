@@ -11,11 +11,18 @@ const Write = mongoose.model('Write', writeSchema);
 
 export default class WriteDatabase extends Tier {
 
-    protected executeTask(params?: any): Status {
-        let write = new Write(Util.randomString(500));
-        write.save((err) => {
-            if(err) return new Status("Error while writting the object.");
-            return new Status("Object written successfully.")
+    protected executeTask(params: (Status) => void | [(Status) => void, number]): void {
+        let content, fn;
+        if(typeof params == "function"){
+            fn = params;
+            content = Util.randomString(500);
+        }else{
+            fn = params[0];
+            content = Util.randomString(params[1]);
+        }
+        Write.create({content: content}, (err) => {
+            if(err) fn(new Status("Error while writting the object."));
+            else fn(new Status("Object written successfully."));
         });
     }
 

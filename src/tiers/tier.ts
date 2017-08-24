@@ -1,10 +1,17 @@
+
+class NextTier {
+    url: string;
+    requestSize: number;
+}
+
 /**
  * Status class that wrappes the possible message and codes generate by the tiers
  */
 class Status {
     message: string;
     code: number;
-    time: number;
+    tier: string | NextTier;
+    children: Status[];
 
     /**
      * 
@@ -14,6 +21,7 @@ class Status {
     constructor(message: string, code = 200){
         this.message = message;
         this.code = code;
+        this.children = [];
     }
 }
 
@@ -22,19 +30,16 @@ abstract class Tier {
      * method that must be implemented in the children classes in order to execute the specific task
      * @param params optional parameter which may used to modify the execution of the task
      */
-    protected abstract executeTask(params?: any): Status;
+    protected abstract executeTask(params?: any): Status | void;
 
     /**
-     * wrapper method that executes the task and collects the timing of such execution
+     * wrapper method that executes the task
      * @param params optional parameter which may used to modify the execution of the task
      */
-    public execute(params?: any): Status {
-        let startTime = new Date().getTime();
+    public execute(params?: any): Status | void {
         let status = this.executeTask(params);
-        var endTime = new Date().getTime();
-        status.time = endTime - startTime;
         return status;
     }
 }
 
-export { Status, Tier };
+export { Status, Tier, NextTier };

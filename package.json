@@ -19,6 +19,8 @@
     "mathjs": "^3.16.2",
     "mongoose": "^4.10.8",
     "morgan": "^1.8.2",
+    "node-fetch": "^1.7.2",
+    "response-time": "^2.3.2",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
