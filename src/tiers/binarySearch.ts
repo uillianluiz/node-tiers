@@ -7,18 +7,24 @@ import Util from './util';
  */
 export default class BinarySearch extends Tier {
     
+    goal: number;
+    constructor(goal = Util.randomNumber()){
+        super();
+        this.goal = goal;
+    }
+
     /**
      * 
      * @param goal number that will be searched in the array. By default it uses a random generated number.
      * This function uses as search array the sorted array found at the class Util. 
      * The size of the array and the goal number impact in the performance of the search. However, it is way faster than linear search.
      */
-    protected executeTask(goal = Util.randomNumber()): Status {
-        let index = this.binarySearch(Util.sortedArray, goal);
+    protected executeTask(): Status {
+        let index = this.binarySearch(Util.sortedArray, this.goal);
         if(index !== -1){
-            return new Status(`The value ${ goal } was found in the sorted array in the index ${ index }.`);
+            return new Status(`The value ${ this.goal } was found in the sorted array in the index ${ index }.`);
         }
-        return  new Status(`The value ${ goal } was not found in the sorted array.`);
+        return  new Status(`The value ${ this.goal } was not found in the sorted array.`);
     }
 
     /**

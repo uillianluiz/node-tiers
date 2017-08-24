@@ -7,17 +7,23 @@ import Util from './util';
  */
 export default class LinearSearch extends Tier {
     
+    goal: number;
+    constructor(goal = Util.randomNumber()){
+        super();
+        this.goal = goal;
+    }
+
     /**
      * 
      * @param goal number that will be searched in the array. By default it uses a random generated number.
      * This function uses as search array the unsorted array found at the class Util. The size of the array and the goal number impact in the performance of the search.
      */
-    protected executeTask(goal = Util.randomNumber()): Status {
-        let index = this.linearSearch(Util.unsortedArray, goal);
+    protected executeTask(): Status {
+        let index = this.linearSearch(Util.unsortedArray, this.goal);
         if(index !== -1){
-            return new Status(`The value ${ goal } was found in the unsorted array in the index ${ index }.`);
+            return new Status(`The value ${ this.goal } was found in the unsorted array in the index ${ index }.`);
         }
-        return  new Status(`The value ${ goal } was not found in the unsorted array.`);
+        return  new Status(`The value ${ this.goal } was not found in the unsorted array.`);
     }
 
     /**

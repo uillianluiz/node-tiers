@@ -1,9 +1,18 @@
 import fetch = require('node-fetch');
-import { Status, NextTier } from "../tiers/tier";
+import { Status, NextTier, Tier } from "../tiers/tier";
 import Util from "../tiers/util";
 
 
-export default abstract class Route {
+interface Route {
+    /**
+	 * Route which executes the tiers
+	 * @param req express request paramater
+	 * @param res express response parameter
+	 */
+    process(req: any, res: any): void;
+}
+
+export default abstract class RouteUtil {
 
     /**
      * The request body should be a JSON in the following format:
@@ -20,6 +29,26 @@ export default abstract class Route {
 			nextTiers = <NextTier[]>(body.nextTiers);
 		}
         return nextTiers;
+    }
+
+    /**
+     * Execute the tier task and calls the function to execute the next tiers.
+	 * @param req express request paramater
+	 * @param res express response parameter
+     * @param tier Tier object that contains the execute method
+     * @param nextTiers NextTier array that contains the next tier configurations
+     */
+    public static processSynchronousRoute(req: any, res: any, tier: Tier, nextTiers: NextTier[]): void {
+        let status = <Status>tier.execute();
+        status.time = new Date().getTime() - req.startTime;
+        status.tier = req.protocol + '://' + req.get('host') + req.originalUrl;
+
+        RouteUtil.processNextTier(nextTiers, (nextTierStatus: Status) => {
+            if(typeof nextTierStatus === 'object')
+                status.children.push(nextTierStatus);
+            
+            res.json(status);
+        });
     }
 
     /**
@@ -55,4 +84,4 @@ export default abstract class Route {
 
 }
 
-export { NextTier, Route };
+export { NextTier, RouteUtil, Route };

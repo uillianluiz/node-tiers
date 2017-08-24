@@ -5,15 +5,24 @@ import { Tier, Status } from './tier';
  * Main resources used: CPU
  */
 export default class Ackerman extends Tier {
+
+    m: number;
+    n: number;
+    constructor(m = 3, n=7){
+        super();
+        this.m = m;
+        this.n = n;
+    }
+
     /**
      * 
      * @param params Two-size array which contains the parameters of the ackerman funcion. These values directly affect the execution time. 
      * Be aware of the size of the input parameters since it is easy to exceed the stack size.
      */
-    protected executeTask(params = [3, 7]): Status {
-        let result =  this.ackerman(params[0], params[1]) || -1;
+    protected executeTask(): Status {
+        let result =  this.ackerman(this.m, this.n) || -1;
         let statusCode = result != -1 ? 200 : 500;
-        return new Status(`The value of Ackerman for (${params[0]}, ${params[1]}) is: ${ result }`, statusCode);
+        return new Status(`The value of Ackerman for (${this.m}, ${this.n}) is: ${ result }`, statusCode);
     }
 
     /**

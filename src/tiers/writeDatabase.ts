@@ -17,21 +17,20 @@ const Write = mongoose.model('Write', writeSchema);
  */
 export default class WriteDatabase extends Tier {
 
+    dbElementSize: number;
+    constructor(dbElementSize = 64000){
+        super();
+        this.dbElementSize = dbElementSize;
+    }
+
     /**
      * 
      * @param params Function callback that will retrive the status object OR Array with [callback, dbElementSize]
      * The element size is the size in bytes that will be written and deleted by the database. It may be changed in the default Util or in the executeTask call.
      */
-    protected executeTask(params: (Status) => void | [(Status) => void, number]): void {
-        let content, fn;
-        if(typeof params == "function"){
-            fn = params;
-            content = Util.randomString(Util.dbElementSize);
-        }else{
-            fn = params[0];
-            content = Util.randomString(params[1]);
-        }
-
+    protected executeTask(fn: (Status) => void ): void {
+        let content = Util.randomString(this.dbElementSize);
+       
         //create, then remove the object from the database
         Write.create({content: content}, (err, write) => {
             if(err) return fn(new Status("Error while writting the object."));

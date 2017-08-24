@@ -5,7 +5,6 @@ export default class Util {
 
     public static arraysLength = 10000000;
     public static matrixSize = 300;
-    public static dbElementSize = 64000;
 
     public static sortedArray = _.range(Util.arraysLength);
     public static unsortedArray = _.shuffle(_.range(Util.arraysLength));   
