@@ -9,17 +9,14 @@ import math = require('mathjs');
 export default class Matrix extends Tier {
 
     matrixSize: number;
-    arraysLength: number;
 
     /**
      * execute a matrix multiplication over a random genenerated matrix and a random vector.
-     * @param matrixSize 2D matrix size
-     * @param arraysLength Array Size
+     * @param matrixSize Matrix size
      */
-    constructor(matrixSize = Util.matrixSize, arraysLength = Util.arraysLength) {
+    constructor(matrixSize = Util.matrixSize) {
         super();
         this.matrixSize = matrixSize;
-        this.arraysLength = arraysLength;
     }
 
     /**
@@ -27,10 +24,10 @@ export default class Matrix extends Tier {
      */
     protected executeTask(): Status {
         let matrix = Util.randomMatrix(this.matrixSize, this.matrixSize);
-        let vector = Util.randomVector(this.arraysLength);
+        let vector = Util.randomVector(this.matrixSize);
         math.multiply(matrix, vector);
 
-        return new Status(`Matrix of size [${this.matrixSize},${this.matrixSize}] multiplied to vector of size [${this.arraysLength}]`);
+        return new Status(`Matrix of size [${this.matrixSize},${this.matrixSize}] multiplied to vector of size [${this.matrixSize}]`);
     }
 
 }
