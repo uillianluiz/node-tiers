@@ -8,16 +8,16 @@ import Util from './util';
 export default class LinearSearch extends Tier {
     
     goal: number;
-    constructor(goal = Util.randomNumber()){
-        super();
-        this.goal = goal;
-    }
-
     /**
      * 
      * @param goal number that will be searched in the array. By default it uses a random generated number.
      * This function uses as search array the unsorted array found at the class Util. The size of the array and the goal number impact in the performance of the search.
      */
+    constructor(goal = Util.randomNumber()){
+        super();
+        this.goal = goal;
+    }
+
     protected executeTask(): Status {
         let index = this.linearSearch(Util.unsortedArray, this.goal);
         if(index !== -1){

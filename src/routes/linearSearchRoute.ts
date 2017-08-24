@@ -8,7 +8,12 @@ export default class BinarySearchRoute implements Route {
         let nextTiers = RouteUtil.getNextTiers(req.body);
         let linearSearch = new LinearSearch();
 
-        let status = RouteUtil.processSynchronousExecution(req, linearSearch);
+        let status = <Status>linearSearch.execute();
+        status.time = new Date().getTime() - req.startTime;
+        status.tier = req.protocol + '://' + req.get('host') + req.originalUrl;
+
+
+        //let status = RouteUtil.processSyncronousExecution(req, res, linearSearch);
         
         RouteUtil.processNextTier(nextTiers, (nextTierStatus: Status) => {
             if(typeof nextTierStatus === 'object')

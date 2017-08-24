@@ -8,17 +8,19 @@ export default class Ackerman extends Tier {
 
     m: number;
     n: number;
+
+    /**
+     * 
+     * @param m First parameter of ackerman function
+     * @param n Second parameter of ackerman function
+     * Be aware of the size of the input parameters since it is easy to exceed the stack size.
+     */
     constructor(m = 3, n=7){
         super();
         this.m = m;
         this.n = n;
     }
 
-    /**
-     * 
-     * @param params Two-size array which contains the parameters of the ackerman funcion. These values directly affect the execution time. 
-     * Be aware of the size of the input parameters since it is easy to exceed the stack size.
-     */
     protected executeTask(): Status {
         let result =  this.ackerman(this.m, this.n) || -1;
         let statusCode = result != -1 ? 200 : 500;

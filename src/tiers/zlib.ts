@@ -9,15 +9,16 @@ import zlib = require('zlib');
 export default class ZLib extends Tier {
 
     textLength: number;
+    
+    /**
+     * Compress and decompress a random text using the nodejs native library zlib
+     * @param textLength length of the random text that will be compressed and decompressed
+     */
     constructor(textLength = 40000) {
         super();
         this.textLength = textLength;
     }
 
-    /**
-     * Compress and decompress a random text using the nodejs native library zlib
-     * @param textLength length of the random text that will be compressed and decompressed
-     */
     protected executeTask(): any {
         let input = Util.randomString(this.textLength);
         let compressed = zlib.deflateSync(input);
