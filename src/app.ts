@@ -5,7 +5,8 @@ import * as morgan from 'morgan';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 import responseTime = require('response-time');
-
+import cluster = require('cluster');
+import os = require('os');
 import setRoutes from './routes';
 
 const app = express();
@@ -31,29 +32,38 @@ let startAPP = () => {
   });
 }
 
-/**
- * check if the DB is supposed to start or not.
- * routes which will not execute database operations don't need to have mongodb.
- * start the server using: npm start -- --DBdisabled
- */
-if (process.argv.length >= 3 && process.argv[2].toLocaleLowerCase() === '--dbdisabled') {
-  console.log("Database disabled!");
-  app.set('databaseActive', false);
-  startAPP();
+
+if (cluster.isMaster) {
+  //create #cpuCount workers that will process requests in a round robin way
+  let cpuCount = process.env.MAX_CPU || os.cpus().length;
+  for (let i = 0; i < cpuCount; i += 1) {
+    cluster.fork();
+  }
 } else {
-  mongoose.connect(process.env.MONGODB_URI);
-  const db = mongoose.connection;
-  (<any>mongoose).Promise = global.Promise;
-
-  db.on('error', () => {
-    console.error.bind(console, 'connection error:');
-    console.log('Perhaps, you should execute: npm start -- --DBdisabled');
-  });
-  db.once('open', () => {
-    console.log('Connected to MongoDB');
-    app.set('databaseActive', true);
+  /**
+   * check if the DB is supposed to start or not.
+   * routes which will not execute database operations don't need to have mongodb.
+   * start the server using: npm start -- --DBdisabled
+   */
+  if (process.argv.length >= 3 && process.argv[2].toLocaleLowerCase() === '--dbdisabled') {
+    console.log("Database disabled!");
+    app.set('databaseActive', false);
     startAPP();
-  });
-}
+  } else {
+    mongoose.connect(process.env.MONGODB_URI);
+    const db = mongoose.connection;
+    (<any>mongoose).Promise = global.Promise;
 
+    db.on('error', () => {
+      console.error.bind(console, 'connection error:');
+      console.log('Perhaps, you should execute: npm start -- --DBdisabled');
+    });
+    db.once('open', () => {
+      console.log('Connected to MongoDB');
+      app.set('databaseActive', true);
+      startAPP();
+    });
+  }
+
+}
 export { app };

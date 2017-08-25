@@ -46,7 +46,7 @@ Then, it can be started:
 It may also build and start in one command:
 - `npm run buildAndStart [-- --DBdisabled]`
 
-_The optional parameter `-- --DBdisabled`_ may be used to disable the database. The server running this command does not need to have MongoDB installed.
+_The optional parameter `-- --DBdisabled` may be used to disable the database. The server running this command does not need to have MongoDB installed._
 
 **Running tests:**
 
