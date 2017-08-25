@@ -6,6 +6,8 @@
   "description": "",
   "scripts": {
     "start": "node dist/app.js",
+    "build": "tsc && gulp build",
+    "buildAndStart": "tsc && gulp build &&  node dist/app.js",
     "dev": "concurrently \"tsc -w\" \"nodemon dist/server/app.js\"",
     "watch": "tsc -w",
     "gulp": "gulp build"

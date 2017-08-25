@@ -32,12 +32,23 @@ Install the necessary dependencies:
 
 - [Node.js](https://nodejs.org/en/)
 - [MongoDB](https://www.mongodb.com/)
+- GCC and G++
 
 Install all other project dependencies by running:
 - `npm install`
 
+The server must be compiled:
+- `npm run build`
 
-**Running:**
+Then, it can be started:
+- `npm run start [-- --DBdisabled]`
+
+It may also build and start in one command:
+- `npm run buildAndStart [-- --DBdisabled]`
+
+_The optional parameter `-- --DBdisabled`_ may be used to disable the database. The server running this command does not need to have MongoDB installed.
+
+**Running tests:**
 
 Each route expects a POST request, where it accepts an optional parameter `nextTiers`, which will make the connections between tiers.
 This parameter must be in the body of the HTTP request, and should follow the example:
