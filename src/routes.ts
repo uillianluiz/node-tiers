@@ -33,9 +33,15 @@ export default function setRoutes(app) {
   router.route('/malloc').post(mallocRoute.process); 
   router.route('/matrix').post(matrixRoute.process); 
   router.route('/pi').post(piRoute.process); 
-  router.route('/writeDatabase').post(writeDatabase.process); 
   router.route('/zlib').post(zlibRoute.process); 
 
+  /**
+   * only add the database route if the database is active
+   */
+  if(app.settings.databaseActive){
+    router.route('/writeDatabase').post(writeDatabase.process); 
+  }
+  
   // Apply the routes to our application with the prefix /api
   app.use('/', router); 
   
