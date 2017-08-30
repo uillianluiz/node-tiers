@@ -6,6 +6,7 @@ import BinarySearchRoute from './routes/binarySearchRoute';
 import LinearSearchRoute from './routes/linearSearchRoute';
 import MallocRoute from './routes/mallocRoute';
 import MatrixRoute from './routes/matrixRoute';
+import MemoryRoute from './routes/memoryRoute';
 import PiRoute from './routes/piRoute';
 import WriteDatabaseRoute from './routes/writeDatabaseRoute';
 import ZLibRoute from './routes/zlibRoute';
@@ -20,6 +21,7 @@ export default function setRoutes(app) {
   const linearSearchRoute = new LinearSearchRoute();
   const mallocRoute = new MallocRoute();
   const matrixRoute = new MatrixRoute();
+  const memoryRoute = new MemoryRoute();
   const piRoute = new PiRoute();
   const writeDatabase = new WriteDatabaseRoute();
   const zlibRoute = new ZLibRoute();
@@ -32,6 +34,7 @@ export default function setRoutes(app) {
   router.route('/linearSearch').post(linearSearchRoute.process); 
   router.route('/malloc').post(mallocRoute.process); 
   router.route('/matrix').post(matrixRoute.process); 
+  router.route('/memory').post(memoryRoute.process); 
   router.route('/pi').post(piRoute.process); 
   router.route('/zlib').post(zlibRoute.process); 
 
