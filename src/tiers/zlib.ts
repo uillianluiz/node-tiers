@@ -14,7 +14,7 @@ export default class ZLib extends Tier {
      * Compress and decompress a random text using the nodejs native library zlib
      * @param textLength length of the random text that will be compressed and decompressed
      */
-    constructor(textLength = 40000) {
+    constructor(textLength = 64000) {
         super();
         this.textLength = textLength;
     }
