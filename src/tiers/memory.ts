@@ -9,7 +9,7 @@ export default class Memory extends Tier {
 
   length: number;
 
-  constructor(length = 340000) {
+  constructor(length = 128000) {
     super();
     this.length = length;
   }
