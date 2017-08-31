@@ -22,7 +22,7 @@ A multi-tier benchmark that allows fine-grained personalization of resource util
 | Linear Search      | [linearSearch.ts](src/tiers/linearSearch.ts)                        | `goal` and [`Util.arraysLength`](src/tiers/util.ts) | Memory (sequential) and Cache |
 | Malloc             | [malloc.ts](src/tiers/malloc.ts) and [malloc.c](src/tiers/malloc.c) | `bytes`                                             | Memory                        |
 | Matrix             | [matrix.ts](src/tiers/matrix.ts)                                    | `matrixSize`                                        | CPU, Memory and Cache         |
-| Memory             | [memory.ts](src/tiers/mamemorylloc.ts) and [memory.c](src/tiers/malloc.c) | `length`                                             | Memory                        |
+| Memory             | [memory.ts](src/tiers/memory.ts) and [memory.c](src/tiers/memory.c) | `length`                                             | Memory                        |
 | Pi                 | [pi.ts](src/tiers/pi.ts)                                            | `precision`                                         | CPU                           |
 | Write Database     | [writeDatabase.ts](src/tiers/writeDatabase.ts)                      | `dbElementSize`                                     | Disk Write                    |
 | ZLib               | [zlib.ts](src/tiers/zlib.ts)                                        | `textLength`                                        | CPU, Memory and Cache         |
