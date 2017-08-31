@@ -15,6 +15,11 @@
 #define ERROR -1
 #define OK 1
 
+/** 
+nt_memset taken from: https://stackoverflow.com/a/25835186
+The magic is all in _mm_stream_si128, aka the machine instruction movntdq, which writes a 16-byte quantity to system RAM, bypassing the cache (the official jargon for this is "non-temporal store"). I think this pretty conclusively demonstrates that the performance difference is all about the cache behavior.
+*
+*/
 static void nt_memset(char *buf, unsigned char val, size_t n){
     /* this will only work with aligned address and size */
     assert((uintptr_t)buf % sizeof(__m128i) == 0);
@@ -30,17 +35,20 @@ static void nt_memset(char *buf, unsigned char val, size_t n){
     _mm_sfence();
 }
 
+/**
+* Stress memory function.
+* Receives the number of bytes to allocate, allocates a char array, and use the function nt_memset to set it. 
+*/
 EXPORT int stressMemory(long size) {
     srand(time(NULL));
-    size *= 100;
+    size *= 256;
     int i;
-    unsigned long r = 8;
+    unsigned long r = 1;
     unsigned char *var;
     var = calloc(size, 1);
+    if(var == NULL) return ERROR;
     for(i = 0; i < r; ++i) {
         nt_memset(var, (int)i, size);
-        printf("%4d/%4ld\r", var[0], r); /* "use" the result */
-        fflush(stdout);
     }
     free(var);
     return OK;
