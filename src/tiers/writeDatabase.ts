@@ -22,7 +22,7 @@ export default class WriteDatabase extends Tier {
      * 
      * @param dbElementSize Element size that represents the size in bytes that will be written and deleted by the database.
      */
-    constructor(dbElementSize = 64000){
+    constructor(dbElementSize = 100000){
         super();
         this.dbElementSize = dbElementSize;
     }
