@@ -3,6 +3,7 @@ import * as express from 'express';
 import Index from './routes/indexRoute';
 import AckermanRoute from './routes/ackermanRoute';
 import BinarySearchRoute from './routes/binarySearchRoute';
+import IORoute from "./routes/ioRoute";
 import LinearSearchRoute from './routes/linearSearchRoute';
 import MallocRoute from './routes/mallocRoute';
 import MatrixRoute from './routes/matrixRoute';
@@ -18,6 +19,7 @@ export default function setRoutes(app) {
   const index = new Index();
   const ackermanRoute = new AckermanRoute();
   const binarySearchRoute = new BinarySearchRoute();
+  const ioRoute = new IORoute();
   const linearSearchRoute = new LinearSearchRoute();
   const mallocRoute = new MallocRoute();
   const matrixRoute = new MatrixRoute();
@@ -31,6 +33,7 @@ export default function setRoutes(app) {
   router.route('/').get(index.show);
   router.route('/ackerman').post(ackermanRoute.process); 
   router.route('/binarySearch').post(binarySearchRoute.process); 
+  router.route('/io').post(ioRoute.process); 
   router.route('/linearSearch').post(linearSearchRoute.process); 
   router.route('/malloc').post(mallocRoute.process); 
   router.route('/matrix').post(matrixRoute.process); 
