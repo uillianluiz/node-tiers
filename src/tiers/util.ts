@@ -9,6 +9,8 @@ export default class Util {
     public static sortedArray = _.range(Util.arraysLength);
     public static unsortedArray = _.shuffle(_.range(Util.arraysLength));   
 
+    public static randomStringMap = new Map<number, string>();
+
     /**
      * Function that generates a random number that works as input to the search algorithms.
      */
@@ -21,11 +23,15 @@ export default class Util {
      * @param length size of the generated random string
      */
     public static randomString(length: number) {
+        if(this.randomStringMap.has(length)){
+            return this.randomStringMap.get(length);
+        }
         var text = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         for (var i = 0; i < length; i++) {
             text += possible.charAt(_.random(0, possible.length));
         }
+        this.randomStringMap.set(length, text);
         return text;
     }
 
